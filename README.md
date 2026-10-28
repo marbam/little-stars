@@ -23,7 +23,9 @@ Double-click `index.html`. It opens in your browser, works offline and needs not
 
 ## How it's built
 
-Plain HTML, CSS and JavaScript with no build step and no frameworks.
+Plain HTML, CSS and JavaScript with no build step and no frameworks. See `CLAUDE.md` for design decisions and conventions.
+
+To run the automated check (plays every game in headless Chrome and saves screenshots to `tests/shots/`): `npm install` then `npm test`.
 
 ```
 index.html              loads every script, in order
