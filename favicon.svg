@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Little Stars favicon: a smiling star on the game's coral background. -->
+  <rect width="64" height="64" rx="14" fill="#ff6b6b"/>
+  <polygon points="32,6 39.3,22.5 57.2,24.3 43.8,36.2 47.6,53.9 32,44.8 16.4,53.9 20.2,36.2 6.8,24.3 24.7,22.5"
+           fill="#ffd60a" stroke="#2b2d42" stroke-width="3.5" stroke-linejoin="round"/>
+  <circle cx="27" cy="31" r="2.3" fill="#2b2d42"/>
+  <circle cx="37" cy="31" r="2.3" fill="#2b2d42"/>
+  <path d="M27 37 Q32 41.5 37 37" fill="none" stroke="#2b2d42" stroke-width="2.4" stroke-linecap="round"/>
+</svg>
