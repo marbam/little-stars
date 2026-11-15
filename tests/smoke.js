@@ -49,6 +49,9 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
     }
     report.counting = await overlayShown();
     await page.screenshot({ path: out('12-celebrate') });
+    await sleep(3500); // the stars pop in one at a time
+    await page.screenshot({ path: out('13-celebrate-stars') });
+    report.awardStars = await page.evaluate(() => document.querySelectorAll('.award-star').length);
     await backToGames();
 
     // 2. Letters
@@ -230,6 +233,58 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
     await playPack(1, '9', bigSteps);
     await playPack(2, 'c', cleverClogs);
     report.jarAfterAllPacks = await page.evaluate(() => document.querySelector('.jar').textContent);
+
+    // Sticker book: buy three stickers (5 + 5 + 10 stars), stick some down, pick one up again.
+    const jarNumber = () => page.evaluate(() => Number(document.querySelector('.jar').textContent.replace(/\D/g, '')));
+    const before = await jarNumber();
+    await page.click('.topbar .shop-btn');
+    await sleep(400);
+    await page.screenshot({ path: out('d0-sticker-book-empty') });
+    await page.click('.topbar .shop-btn'); // the shop
+    await sleep(400);
+    await page.evaluate(() => {
+        const items = [...document.querySelectorAll('.shop-item')];
+        items[0].click();
+        items[1].click();
+        items.find((i) => i.classList.contains('special')).click();
+    });
+    await sleep(300);
+    await page.screenshot({ path: out('d1-sticker-shop') });
+    report.starsSpent = before - (await jarNumber());
+    await page.click('.topbar .shop-btn'); // back to the book
+    await sleep(400);
+    const stickAt = async (fx, fy) => {
+        await page.click('.tray-sticker');
+        const box = await (await page.$('.board')).boundingBox();
+        await page.mouse.click(box.x + box.width * fx, box.y + box.height * fy);
+        await sleep(300);
+    };
+    await stickAt(0.25, 0.4);
+    await stickAt(0.6, 0.7);
+    await (await page.$$('.page-tab'))[1].click(); // under the sea
+    await sleep(200);
+    await stickAt(0.5, 0.5);
+    await page.screenshot({ path: out('d2-sticker-sea') });
+    await (await page.$$('.page-tab'))[0].click();
+    await sleep(200);
+    await page.click('.placed-sticker'); // pick one up...
+    await sleep(200);
+    const box = await (await page.$('.board')).boundingBox();
+    await page.mouse.click(box.x + box.width * 0.8, box.y + box.height * 0.3); // ...and put it somewhere else
+    await sleep(300);
+    await page.screenshot({ path: out('d3-sticker-garden') });
+    await page.reload();
+    await sleep(500);
+    await page.click('.player-btn');
+    await sleep(400);
+    await page.click('.topbar .shop-btn');
+    await sleep(400);
+    report.stickersAfterReload = await page.evaluate(() => ({
+        garden: document.querySelectorAll('.placed-sticker').length,
+        spare: document.querySelectorAll('.tray-sticker').length,
+    }));
+    await page.click('.topbar .nav-btn'); // back to the packs
+    await sleep(400);
 
     // Smaller screen check
     await page.setViewport({ width: 1024, height: 600 });

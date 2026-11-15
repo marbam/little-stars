@@ -8,7 +8,8 @@ Double-click `index.html`. It opens in your browser, works offline and needs not
 
 - **Microsoft Edge is recommended.** Its built-in "Natural" voices (e.g. *Libby*, *Sonia*) sound far nicer than the older robotic ones. Chrome works too.
 - Press the 🖥️ button (or F11) for full screen, which stops little hands clicking on browser tabs.
-- Each child's name and star total are saved in the browser's local storage. Anyone who has played before just picks their name on the first screen.
+- Each child's name, stars and stickers are saved in the browser's local storage. Anyone who has played before just picks their name on the first screen.
+- **Stickers:** finishing a game wins stars. Spend them in the sticker shop (📒 Stickers, on the packs screen or after a game): 5 stars a sticker, 10 for the special ones. Then pick a sticker and point to where it goes on the garden, sea or space page. Click a stuck sticker to pick it up again.
 
 The games are designed for a child who points while a grown-up clicks: answers are big and still, with no timers.
 
@@ -58,6 +59,7 @@ js/core/ui.js           DOM + random helpers, shared colours, letter sounds
 js/core/sound.js        sound effects generated with Web Audio (no audio files)
 js/core/speech.js       text-to-speech (browser speechSynthesis)
 js/core/registry.js     LS.registerGame / LS.registerPack
+js/core/stickers.js     sticker book and shop
 js/core/app.js          screens: name -> packs -> games -> game -> celebration
 js/packs/starter/*.js   one file per game, plus pack.js
 js/packs/bigsteps/*.js  Ages 4–5 pack (common.js has helpers the next pack reuses too)

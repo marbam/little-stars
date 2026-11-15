@@ -13,7 +13,7 @@ The current audience is **under 5s who can't read yet**, played on a **Windows P
 ## Running and testing
 
 - **Play:** double-click `index.html`. No server, build step or install. Edge is recommended for its "Natural" text-to-speech voices.
-- **Test:** `npm install` once, then `npm test`. This runs `tests/smoke.js`, which uses puppeteer-core with the installed Chrome (`C:/Program Files/Google/Chrome/...`). It enters a name, plays every game in every pack through to the celebration screen, checks the player picker and that the star total persists across a reload, and saves screenshots to `tests/shots/` (gitignored). Look at the screenshots after UI changes. The test can't hear audio, so check speech by ear.
+- **Test:** `npm install` once, then `npm test`. This runs `tests/smoke.js`, which uses puppeteer-core with the installed Chrome (`C:/Program Files/Google/Chrome/...`). It enters a name, plays every game in every pack through to the celebration screen, checks the player picker, buys and places stickers, and checks that stars and stickers persist across a reload, and saves screenshots to `tests/shots/` (gitignored). Look at the screenshots after UI changes. The test can't hear audio, so check speech by ear.
 - `package.json` exists only for this test tooling. The game itself must keep working with no npm install.
 
 ## Architecture
@@ -24,7 +24,8 @@ Plain HTML, CSS and JavaScript, with no framework, bundler or ES modules. Script
 - `js/core/sound.js`: sound effects generated with Web Audio (no audio files).
 - `js/core/speech.js`: `speechSynthesis`, preferring an en-GB voice.
 - `js/core/registry.js`: `LS.registerGame()` and `LS.registerPack()`. The README has the game contract.
-- `js/core/app.js`: the screens (player picker / name → packs, grouped by `ages` → games → game → celebration overlay). It also provides the `api` object handed to each game: `name`, `players`, `prompt` (with an optional different spoken text), `say`, `correct`, `tryAgain`, `finish`, `later`, `wait`, `onFrame`. After the player leaves a game, `later`/`wait`/`say`/`prompt` do nothing, so `await api.wait()` chains just stop.
+- `js/core/stickers.js`: the sticker book and shop (`LS.stickerBook.open(ctx)`; app.js passes in star and storage functions). Stickers cost 5 stars, specials 10. Placing is point-then-click, never dragging; clicking a placed sticker picks it back up.
+- `js/core/app.js`: the screens (player picker / name → packs, grouped by `ages` → games → game → celebration overlay, where the stars won pop in one at a time; packs → sticker book ⇄ shop). It also provides the `api` object handed to each game: `name`, `players`, `prompt` (with an optional different spoken text), `say`, `correct`, `tryAgain`, `finish`, `later`, `wait`, `onFrame`. After the player leaves a game, `later`/`wait`/`say`/`prompt` do nothing, so `await api.wait()` chains just stop.
 - `js/packs/<pack>/`: one file per game, plus `pack.js`. New pack scripts go in `index.html` before `app.js`.
   - `starter/` (Under 5s): counting, letters, balloons, shapes, pairs, paint.
   - `bigsteps/` (Ages 4–5): I spy, sound it out, rhyme time, more or less, one more one less, what comes next. `common.js` has `LS.bigsteps.choiceRow()` (big answer buttons; the right one carries `data-right`, which the smoke test uses) and the shared `THINGS` to count and `FRIENDS`.
@@ -38,14 +39,13 @@ Plain HTML, CSS and JavaScript, with no framework, bundler or ES modules. Script
 - **Timers:** games must use `api.later()`, `api.wait()` and `api.onFrame()`, not raw `setTimeout`/`requestAnimationFrame`, so everything stops when the player leaves mid-game.
 - **Emoji:** the target machine is Windows 10. Avoid newer emoji (Emoji 13+, e.g. 🪼 🫙 🪁) because they won't render.
 - **Letters are spoken by their phonic sound**, not their name (`'buh'`, `'ser'`, `'ler'`), as UK schools teach. The spellings in `LETTER_SOUNDS` in `ui.js` were checked against Windows' Hazel voice; it spells out any string with no vowel, so a held "sss" isn't possible. To check a spelling without listening, use PowerShell's `System.Speech` `SpeechSynthesizer` with its `PhonemeReached` event to see the phonemes. Tune by ear with `tests/phonics.html`. Starting words must begin with the letter's short sound (so no "ice cream"), and c and k are never offered together because they sound the same. UK English throughout (colour, ladybird, zed).
-- **Persistence** is `localStorage` only (`ls.name` last player, `ls.players` everyone who's played, most recent first, `ls.sound`, `ls.stars.<lowercase name>`), wrapped in try/catch so it can never break the game.
+- **Persistence** is `localStorage` only (`ls.name` last player, `ls.players` everyone who's played, most recent first, `ls.sound`, `ls.stars.<lowercase name>` (stars left to spend), `ls.stickers.<lowercase name>` (`{ spare: [emoji], pages: { garden|sea|space: [{ e, x, y, r }] } }`, x/y in % of the board)), wrapped in try/catch so it can never break the game.
 - Large, mouse-friendly targets; balloons move slowly on purpose.
 
 ## Ideas discussed for later
 
 - A pack for older children (adding up, spelling, telling the time).
 - Recording the owner's own voice instead of using the computer voice.
-- A sticker or reward screen to spend stars on.
 
 ## Git
 

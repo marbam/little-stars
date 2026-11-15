@@ -78,6 +78,8 @@ LS.sound = (function () {
         pop() { noise(0.1, 0.35); sweep(900, 150, 0.12, 'triangle', 0.25); },
         // Deliberately soft and friendly: getting it wrong should never feel like a telling-off.
         oops() { tone(392, 0, 0.16, 'sine', 0.12); tone(330, 0.14, 0.22, 'sine', 0.12); },
+        // A bright ding that climbs a little higher each time (for counting stars in).
+        ding(step = 0) { tone(880 * Math.pow(2, (step * 2) / 12), 0, 0.35, 'triangle', 0.16); tone(1760 * Math.pow(2, (step * 2) / 12), 0.02, 0.25, 'sine', 0.06); },
         cheer() { [523, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.09, 0.25, 'triangle', 0.18)); },
         fanfare() {
             [523, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.12, 0.3, 'triangle', 0.18));

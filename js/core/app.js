@@ -68,8 +68,15 @@
 
     // Tidy up whatever screen is showing before drawing the next one.
     let cleanup = null;
+    const screenTimers = new Set(); // timers belonging to the current screen (e.g. the celebration's star sounds)
+    function screenLater(fn, ms) {
+        const id = setTimeout(() => { screenTimers.delete(id); fn(); }, ms);
+        screenTimers.add(id);
+    }
     function leave() {
         if (cleanup) { const c = cleanup; cleanup = null; c(); }
+        screenTimers.forEach(clearTimeout);
+        screenTimers.clear();
         overlay.hidden = true;
         overlay.replaceChildren();
         LS.speech.stop();
@@ -177,6 +184,7 @@
         const header = el('header', { class: 'topbar' },
             el('button', { class: 'nav-btn', 'data-say': 'Change player', title: 'Change player', onClick: showWelcome }, '👋'),
             el('div', { class: 'title' }, `Hi ${state.name}!`),
+            el('button', { class: 'big-btn shop-btn', 'data-say': 'Sticker book', onClick: showStickers }, '📒 Stickers'),
             el('div', { class: 'jar', title: 'Stars collected' }, `⭐ ${jar()}`),
             settingsButtons());
 
@@ -303,6 +311,22 @@
         };
     }
 
+    // ---------- Sticker book ----------
+    function showStickers() {
+        leave();
+        const key = 'ls.stickers.' + state.name.toLowerCase();
+        LS.stickerBook.open({
+            name: state.name,
+            stars: () => jar(),
+            spend: (n) => store.set(jarKey(), Math.max(0, jar() - n)),
+            load: () => store.get(key, {}),
+            save: (data) => store.set(key, data),
+            back: () => showPacks(),
+            settingsButtons,
+            render: (node) => { LS.speech.stop(); app.replaceChildren(node); },
+        });
+    }
+
     // ---------- Celebration ----------
     function celebrate(pack, game, stars, message) {
         addToJar(stars);
@@ -310,13 +334,23 @@
         const starText = stars === 1 ? 'a star' : `${stars} stars`;
         const line = message || `You got ${starText}!`;
 
+        // The stars won pop in one at a time, each with a little ding, then the jar shows the new total.
+        const STAR_GAP = 450;
+        const awarded = Array.from({ length: stars }, (_, i) =>
+            el('span', { class: 'award-star', style: { animationDelay: 0.9 + (i * STAR_GAP) / 1000 + 's' } }, '⭐'));
+        const total = el('p', { class: 'jar-total' }, `Your star jar: ⭐ ${jar()}`);
+        total.style.animationDelay = 0.9 + (stars * STAR_GAP) / 1000 + 's';
+        awarded.forEach((_, i) => screenLater(() => LS.sound.ding(i), 900 + i * STAR_GAP));
+
         const card = el('div', { class: 'celebrate-card' },
-            el('div', { class: 'big-star' }, '⭐'),
             el('h1', {}, `Well done, ${state.name}!`),
             el('p', {}, line),
+            el('div', { class: 'award-stars' }, awarded),
+            total,
             el('div', { class: 'btn-row' },
                 el('button', { class: 'big-btn', 'data-say': 'Play again', onClick: () => playGame(pack, game) }, '🔁 Again'),
-                el('button', { class: 'big-btn alt', 'data-say': 'Pick another game', onClick: () => openPack(pack) }, '🎮 More games')));
+                el('button', { class: 'big-btn alt', 'data-say': 'Pick another game', onClick: () => openPack(pack) }, '🎮 More games'),
+                el('button', { class: 'big-btn sticker', 'data-say': 'Sticker book', onClick: showStickers }, '📒 Stickers')));
 
         overlay.replaceChildren(LS.ui.confetti(), card);
         overlay.hidden = false;
