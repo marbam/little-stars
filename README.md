@@ -8,12 +8,21 @@ A collection of simple, friendly learning games for young children, inspired by 
 
 Open the link above, or download the repo (green **Code** button → **Download ZIP**), extract it, and double-click `index.html`. It opens in your browser, works offline and needs nothing installed.
 
-- **Microsoft Edge is recommended.** Its built-in "Natural" voices (e.g. *Libby*, *Sonia*) sound far nicer than the older robotic ones. Chrome works too.
+- **Microsoft Edge is recommended.** Its "Natural" voices (e.g. *Libby*, *Sonia*) sound far nicer than the older robotic ones, though they're online voices (see Privacy below). Chrome works too.
 - Press the 🖥️ button (or F11) for full screen, which stops little hands clicking on browser tabs.
 - Each child's name, stars and stickers are saved in the browser's local storage. Anyone who has played before just picks their name on the first screen.
 - **Stickers:** finishing a game wins stars. Spend them in the sticker shop (📒 Stickers, on the packs screen or after a game): 5 stars a sticker, 10 for the special ones. Then pick a sticker and point to where it goes on the garden, sea or space page. Click a stuck sticker to pick it up again.
 
 The games are designed for a child who points while a grown-up clicks: answers are big and still, with no timers.
+
+## Privacy
+
+Little Stars doesn't collect any data. Names, stars and stickers are saved only in your browser's local storage on your own device, and the game never sends anything anywhere: it has no accounts, analytics, adverts or cookies, and everything it uses (including the font) comes from this folder. The automated test fails if the game ever requests anything from the internet.
+
+Two things are outside the game's control:
+
+- **Voices:** speech comes from your web browser. Some browsers' online voices (Edge's "Natural" voices, Chrome's "Google" voices) send the words being read out, which can include the child's name, to Microsoft or Google to be spoken. Voices built into Windows (e.g. *Hazel*), as used by Brave, work entirely on the device.
+- **Hosting:** the online version is served by GitHub Pages, which, like any web host, may keep standard visit logs such as IP addresses. Downloading the ZIP and playing offline avoids this.
 
 ## Starter Pack (Under 5s)
 
@@ -52,7 +61,7 @@ The games are designed for a child who points while a grown-up clicks: answers a
 
 Plain HTML, CSS and JavaScript with no build step and no frameworks. See `CLAUDE.md` for design decisions and conventions.
 
-To run the automated check (plays every game in headless Chrome and saves screenshots to `tests/shots/`): `npm install` then `npm test`.
+To run the automated check (plays every game in headless Chrome and saves screenshots to `tests/shots/`): `npm install` then `npm test`. That takes a few minutes; to test just part of it, name the parts, e.g. `npm test -- dice share`, `npm test -- bigsteps` or `npm test -- welcome stickers` (the list is at the top of `tests/smoke.js`).
 
 ```
 index.html              loads every script, in order

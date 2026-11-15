@@ -110,6 +110,13 @@
     const logo = () => el('div', { class: 'logo' },
         el('span', { class: 'logo-star' }, '⭐'), ' Little Stars ', el('span', { class: 'logo-star delay' }, '⭐'));
 
+    // Shown on the first screen. Keep this true: the game must never send anything anywhere.
+    const privacyNote = () => el('p', { class: 'privacy-note' },
+        el('strong', {}, '🔒 Your information stays on this device. '),
+        'Little Stars doesn’t collect any data. Names, stars and stickers are saved only in this browser on this device, and are never sent anywhere. ',
+        el('span', { class: 'privacy-small' },
+            'The spoken voice comes from your web browser: some browsers’ online voices (such as Edge’s “Natural” voices) send the words being read out to Microsoft or Google to speak them.'));
+
     // Players who've been here before just pick their name; anyone new types it in.
     function showWelcome() {
         leave();
@@ -125,7 +132,8 @@
 
         app.replaceChildren(el('div', { class: 'screen welcome' }, logo(),
             el('h1', {}, "Who's playing?"),
-            el('div', { class: 'player-grid' }, buttons, someoneNew)));
+            el('div', { class: 'player-grid' }, buttons, someoneNew),
+            privacyNote()));
     }
 
     function showNameForm(canGoBack) {
@@ -151,7 +159,7 @@
         }, el('h1', {}, "What's your name?"), input, el('button', { class: 'big-btn', type: 'submit' }, "Let's go!  ▶"),
             canGoBack ? el('button', { class: 'link-btn', type: 'button', onClick: showWelcome }, 'Back to the names') : null);
         setTimeout(() => input.focus(), 50);
-        app.replaceChildren(el('div', { class: 'screen welcome' }, logo(), form));
+        app.replaceChildren(el('div', { class: 'screen welcome' }, logo(), form, privacyNote()));
     }
 
     function begin() {
