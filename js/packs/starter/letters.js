@@ -13,16 +13,8 @@
         ['☂️', 'umbrella'], ['🚐', 'van'], ['🌋', 'volcano'], ['🐋', 'whale'], ['🐺', 'wolf'], ['🦓', 'zebra'],
     ];
 
-    // Phonic sounds (as in UK phonics teaching), spelled so the speech voice gets as close as it can.
-    // The spellings look odd because they were checked against the phonemes Windows' "Hazel" voice
-    // actually produces: vowel-less spellings like "sss" get spelled out ("ess ess ess"), "eh" says "ay",
-    // "ih" says "eye", and "aeh" is the only way found to get a short i. Tune by ear with tests/phonics.html.
-    const SOUNDS = {
-        a: 'ah', b: 'buh', c: 'cuh', d: 'duh', e: 'ehh', f: 'fer', g: 'guhh', h: 'huh', i: 'aeh', j: 'juh',
-        k: 'cuh', l: 'ler', m: 'mmm', n: 'ner', o: 'aw', p: 'per', q: 'kwah', r: 'ruh', s: 'ser', t: 'tuhh',
-        u: 'uh', v: 'ver', w: 'wah', x: 'ecks', y: 'yuh', z: 'zer',
-    };
-    LS.letterSounds = SOUNDS; // also used by tests/phonics.html
+    // Phonic sounds, shared with the other reading games (see ui.js).
+    const SOUNDS = LS.ui.LETTER_SOUNDS;
 
     // Letters that make the same sound can't both be offered as choices.
     const SAME_SOUND = { c: 'k', k: 'c' };

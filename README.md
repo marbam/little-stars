@@ -8,7 +8,9 @@ Double-click `index.html`. It opens in your browser, works offline and needs not
 
 - **Microsoft Edge is recommended.** Its built-in "Natural" voices (e.g. *Libby*, *Sonia*) sound far nicer than the older robotic ones. Chrome works too.
 - Press the 🖥️ button (or F11) for full screen, which stops little hands clicking on browser tabs.
-- The child's name and their star total are saved in the browser's local storage.
+- Each child's name and star total are saved in the browser's local storage. Anyone who has played before just picks their name on the first screen.
+
+The games are designed for a child who points while a grown-up clicks: answers are big and still, with no timers.
 
 ## Starter Pack (Under 5s)
 
@@ -21,6 +23,17 @@ Double-click `index.html`. It opens in your browser, works offline and needs not
 | 🃏 Find the pairs | Memory, with animals that say their names. |
 | 🎨 Colour in | Free colouring of three pictures. Says each colour's name. |
 
+## Big Steps Pack (Ages 4–5)
+
+| Game | What it teaches |
+| --- | --- |
+| 👀 I spy | Initial sounds: "something beginning with *ser*", find the picture. Later rounds add a similar-sounding picture. |
+| 🧩 Sound it out | Blending: hear "c… a… t", find the cat. From round 3 the letters light up as each sound is said. |
+| 🎵 Rhyme time | Which picture rhymes? Later rounds add a picture that starts the same but doesn't rhyme. |
+| ⚖️ More or less | Which plate has more (or fewer)? Gaps get smaller, and later the smaller group is drawn bigger. |
+| ➕ One more, one less | Early adding and taking away with fruit on a plate. Tap the fruit to count it. |
+| 🔁 What comes next? | Patterns: AB, AAB, ABB, ABC with fruit, animals, vehicles and colours. |
+
 ## How it's built
 
 Plain HTML, CSS and JavaScript with no build step and no frameworks. See `CLAUDE.md` for design decisions and conventions.
@@ -30,12 +43,14 @@ To run the automated check (plays every game in headless Chrome and saves screen
 ```
 index.html              loads every script, in order
 css/style.css
-js/core/ui.js           DOM + random helpers, shared colours
+js/core/ui.js           DOM + random helpers, shared colours, letter sounds
 js/core/sound.js        sound effects generated with Web Audio (no audio files)
 js/core/speech.js       text-to-speech (browser speechSynthesis)
 js/core/registry.js     LS.registerGame / LS.registerPack
 js/core/app.js          screens: name -> packs -> games -> game -> celebration
 js/packs/starter/*.js   one file per game, plus pack.js
+js/packs/bigsteps/*.js  the Ages 4–5 pack (common.js has shared helpers)
+tests/phonics.html      listen to and tune the phonic sounds
 ```
 
 ### Adding a new pack
@@ -56,7 +71,7 @@ js/packs/starter/*.js   one file per game, plus pack.js
    });
    ```
 
-   Always use `api.later(fn, ms)` and `api.onFrame(fn)` rather than raw `setTimeout`/`requestAnimationFrame`, so everything stops cleanly when the player leaves a game.
+   Always use `api.later(fn, ms)`, `await api.wait(ms)` and `api.onFrame(fn)` rather than raw `setTimeout`/`requestAnimationFrame`, so everything stops cleanly when the player leaves a game. `api.prompt(text, spoken)` can show one thing and say another (e.g. show "s", say "ser").
 
 2. Add a `pack.js` that calls `LS.registerPack({ id, title, ages: 'Ages 5–7', icon, colour, games: [...] })`. Packs are grouped on the menu by their `ages` label.
 3. Add the new `<script>` tags to `index.html`, before `js/core/app.js`.

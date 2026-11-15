@@ -93,5 +93,20 @@ LS.ui = (function () {
 
     const NUMBER_WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 
-    return { el, svg, randInt, pick, shuffle, sample, article, capitalise, starPoints, confetti, COLOURS, NUMBER_WORDS };
+    // Phonic sounds (as in UK phonics teaching), spelled so the speech voice gets as close as it can.
+    // The spellings look odd because they were checked against the phonemes Windows' "Hazel" voice
+    // actually produces: vowel-less spellings like "sss" get spelled out ("ess ess ess"), "eh" says "ay",
+    // "ih" says "eye", and "aeh" is the only way found to get a short i. Tune by ear with tests/phonics.html.
+    const LETTER_SOUNDS = {
+        a: 'ah', b: 'buh', c: 'cuh', d: 'duh', e: 'ehh', f: 'fer', g: 'guhh', h: 'huh', i: 'aeh', j: 'juh',
+        k: 'cuh', l: 'ler', m: 'mmm', n: 'ner', o: 'aw', p: 'per', q: 'kwah', r: 'ruh', s: 'ser', t: 'tuhh',
+        u: 'uh', v: 'ver', w: 'wah', x: 'ecks', y: 'yuh', z: 'zer',
+    };
+    // The sound a word starts with (c and k give the same answer, because they sound the same).
+    const firstSound = (word) => LETTER_SOUNDS[word[0].toLowerCase()];
+
+    return {
+        el, svg, randInt, pick, shuffle, sample, article, capitalise, starPoints, confetti,
+        COLOURS, NUMBER_WORDS, LETTER_SOUNDS, firstSound,
+    };
 })();

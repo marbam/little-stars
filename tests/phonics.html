@@ -19,17 +19,15 @@
     <h1>Phonics sound check</h1>
     <p>Click 🔊 to hear how the computer voice says each sound in the First letters game. If one sounds wrong,
        try a different spelling in the box. When you're happy, copy the code at the bottom into the
-       <code>SOUNDS</code> table in <code>js/packs/starter/letters.js</code>. Open this page in Edge to hear the same voice as the game.</p>
+       <code>LETTER_SOUNDS</code> table in <code>js/core/ui.js</code>. Open this page in the same browser you play in, so you hear the same voice.</p>
     <div class="grid" id="grid"></div>
-    <h2>Code for letters.js</h2>
+    <h2>Code for ui.js</h2>
     <pre id="code"></pre>
 
     <script src="../js/core/ui.js"></script>
     <script src="../js/core/speech.js"></script>
-    <script src="../js/core/registry.js"></script>
-    <script src="../js/packs/starter/letters.js"></script>
     <script>
-        const original = LS.letterSounds;
+        const original = LS.ui.LETTER_SOUNDS;
         const current = { ...original };
         const grid = document.getElementById('grid');
         const code = document.getElementById('code');
@@ -38,7 +36,7 @@
             const entries = Object.keys(current).map((l) => `${l}: '${current[l].replace(/'/g, "\\'")}'`);
             const lines = [];
             for (let i = 0; i < entries.length; i += 10) lines.push('        ' + entries.slice(i, i + 10).join(', ') + ',');
-            code.textContent = '    const SOUNDS = {\n' + lines.join('\n') + '\n    };';
+            code.textContent = '    const LETTER_SOUNDS = {\n' + lines.join('\n') + '\n    };';
         }
 
         for (const letter of Object.keys(original)) {

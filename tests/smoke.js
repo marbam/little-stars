@@ -167,21 +167,75 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
     await page.screenshot({ path: out('63-paint-done') });
     await backToGames();
 
-    // Back to packs and reload: name + star jar should persist.
+    // Reload: the player picker should offer Sam, and the star jar should persist.
     await page.reload();
     await sleep(600);
     await page.screenshot({ path: out('70-welcome-again') });
-    await page.click('.welcome .big-btn');
+    report.pickerNames = await page.evaluate(() => [...document.querySelectorAll('.player-btn:not(.new) .player-name')].map((n) => n.textContent));
+    await page.click('.player-btn');
     await sleep(400);
     report.jar = await page.evaluate(() => document.querySelector('.jar').textContent);
+    await page.screenshot({ path: out('71-packs-two') });
+
+    // Big Steps pack. Each game marks its right answer with data-right; pick a wrong one first, then the right one.
+    await (await page.$$('.tile'))[1].click();
+    await sleep(500);
+    await page.screenshot({ path: out('90-bigsteps-games') });
+    const bigSteps = ['ispy', 'soundout', 'rhyme', 'moreless', 'onemore', 'pattern'];
+    for (let g = 0; g < bigSteps.length; g++) {
+        await openGame(g);
+        for (let r = 0; r < 5; r++) {
+            await page.waitForFunction(() => document.querySelector('[data-right]:not(.right)'), { timeout: 30000 });
+            if (r === 0 || r === 3) await page.screenshot({ path: out(`9${g + 1}-${bigSteps[g]}-round${r + 1}`) });
+            await page.evaluate(() => {
+                const right = document.querySelector('[data-right]:not(.right)');
+                const wrong = [...right.parentElement.children].find((b) => b !== right && !b.disabled);
+                if (wrong) wrong.click();
+                right.click();
+            });
+            await sleep(400);
+            if (r === 4) await page.screenshot({ path: out(`9${g + 1}-${bigSteps[g]}-right`) });
+        }
+        await page.waitForFunction(() => !document.getElementById('overlay').hidden, { timeout: 15000 }).catch(() => {});
+        report[bigSteps[g]] = await overlayShown();
+        await backToGames();
+    }
+    report.jarAfterBigSteps = await page.evaluate(() => document.querySelector('.jar').textContent);
+    await page.click('.topbar .nav-btn'); // back to the packs
+    await sleep(400);
 
     // Smaller screen check
     await page.setViewport({ width: 1024, height: 600 });
+    await (await page.$$('.tile'))[1].click();
+    await sleep(300);
+    for (const g of [1, 3, 4, 5]) {
+        await openGame(g);
+        await page.waitForFunction(() => document.querySelector('[data-right]'), { timeout: 30000 });
+        await page.screenshot({ path: out(`82-small-${bigSteps[g]}`) });
+        await page.click('.topbar .nav-btn');
+        await sleep(400);
+    }
+    await page.click('.topbar .nav-btn');
+    await sleep(400);
     await page.click('.tile');
     await sleep(300);
     await page.screenshot({ path: out('80-small-games') });
     const t = await page.$$('.tile'); await t[4].click(); await sleep(500);
     await page.screenshot({ path: out('81-small-pairs') });
+
+    // A second player: "Someone new" should add them to the picker alongside Sam.
+    await page.setViewport({ width: 1366, height: 768 });
+    await page.reload();
+    await sleep(500);
+    await page.click('.player-btn.new');
+    await sleep(300);
+    await page.type('.name-input', 'ava');
+    await page.click('.name-form .big-btn');
+    await sleep(400);
+    await page.reload();
+    await sleep(500);
+    report.pickerAfterNew = await page.evaluate(() => [...document.querySelectorAll('.player-btn:not(.new) .player-name')].map((n) => n.textContent));
+    await page.screenshot({ path: out('72-two-players') });
 
     console.log(JSON.stringify(report, null, 1));
     console.log('ERRORS:', errors.length ? errors : 'none');

@@ -22,9 +22,33 @@
     }
     applySound();
 
-    const jarKey = () => 'ls.stars.' + state.name.toLowerCase();
-    const jar = () => store.get(jarKey(), 0);
+    const jarKey = (name = state.name) => 'ls.stars.' + name.toLowerCase();
+    const jar = (name) => store.get(jarKey(name), 0);
     const addToJar = (n) => store.set(jarKey(), jar() + n);
+
+    // Everyone who has played on this computer, most recent first.
+    // Players from before this list existed only had a star jar saved, so pick those up too.
+    function players() {
+        const list = store.get('ls.players', []);
+        const known = new Set(list.map((n) => n.toLowerCase()));
+        const add = (n) => { if (n && !known.has(n.toLowerCase())) { known.add(n.toLowerCase()); list.push(n); } };
+        add(state.name);
+        try {
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('ls.stars.')) add(cleanName(key.slice('ls.stars.'.length)));
+            }
+        } catch (e) { /* ignore */ }
+        return list;
+    }
+
+    function choosePlayer(name) {
+        const existing = players().find((n) => n.toLowerCase() === name.toLowerCase());
+        state.name = existing || name;
+        store.set('ls.name', state.name);
+        store.set('ls.players', [state.name, ...players().filter((n) => n !== state.name)]);
+        begin();
+    }
 
     // Browsers only allow sound after the first click or key press.
     let unlocked = false;
@@ -76,47 +100,51 @@
     };
 
     // ---------- Welcome / name ----------
+    const logo = () => el('div', { class: 'logo' },
+        el('span', { class: 'logo-star' }, '⭐'), ' Little Stars ', el('span', { class: 'logo-star delay' }, '⭐'));
+
+    // Players who've been here before just pick their name; anyone new types it in.
     function showWelcome() {
         leave();
-        const logo = el('div', { class: 'logo' },
-            el('span', { class: 'logo-star' }, '⭐'), ' Little Stars ', el('span', { class: 'logo-star delay' }, '⭐'));
-        let body;
+        const list = players();
+        if (!list.length) { showNameForm(false); return; }
 
-        if (state.name) {
-            body = [
-                el('h1', {}, `Hello again, ${state.name}!`),
-                el('button', { class: 'big-btn', 'data-say': "Let's play!", onClick: begin }, '▶  Play'),
-                el('button', {
-                    class: 'link-btn',
-                    onClick() { state.name = ''; store.set('ls.name', ''); showWelcome(); },
-                }, `I'm not ${state.name}`),
-            ];
-        } else {
-            const input = el('input', {
-                class: 'name-input', type: 'text', maxlength: '14', placeholder: 'Type your name',
-                autocomplete: 'off', spellcheck: 'false', 'aria-label': 'Your name',
-            });
-            body = el('form', {
-                class: 'name-form',
-                onSubmit(e) {
-                    e.preventDefault();
-                    const name = cleanName(input.value);
-                    if (!name) {
-                        input.classList.remove('shake');
-                        void input.offsetWidth;
-                        input.classList.add('shake');
-                        input.focus();
-                        return;
-                    }
-                    state.name = name;
-                    store.set('ls.name', name);
-                    begin();
-                },
-            }, el('h1', {}, "What's your name?"), input, el('button', { class: 'big-btn', type: 'submit' }, "Let's go!  ▶"));
-            setTimeout(() => input.focus(), 50);
-        }
+        const buttons = list.map((name) => el('button', {
+            class: 'player-btn', 'data-say': name, onClick: () => choosePlayer(name),
+        }, el('span', { class: 'player-name' }, name), el('span', { class: 'player-stars' }, `⭐ ${jar(name)}`)));
+        const someoneNew = el('button', {
+            class: 'player-btn new', 'data-say': 'Someone new', onClick: () => showNameForm(true),
+        }, el('span', { class: 'player-name' }, '➕'), el('span', { class: 'player-stars' }, 'Someone new'));
 
-        app.replaceChildren(el('div', { class: 'screen welcome' }, logo, body));
+        app.replaceChildren(el('div', { class: 'screen welcome' }, logo(),
+            el('h1', {}, "Who's playing?"),
+            el('div', { class: 'player-grid' }, buttons, someoneNew)));
+    }
+
+    function showNameForm(canGoBack) {
+        leave();
+        const input = el('input', {
+            class: 'name-input', type: 'text', maxlength: '14', placeholder: 'Type your name',
+            autocomplete: 'off', spellcheck: 'false', 'aria-label': 'Your name',
+        });
+        const form = el('form', {
+            class: 'name-form',
+            onSubmit(e) {
+                e.preventDefault();
+                const name = cleanName(input.value);
+                if (!name) {
+                    input.classList.remove('shake');
+                    void input.offsetWidth;
+                    input.classList.add('shake');
+                    input.focus();
+                    return;
+                }
+                choosePlayer(name);
+            },
+        }, el('h1', {}, "What's your name?"), input, el('button', { class: 'big-btn', type: 'submit' }, "Let's go!  ▶"),
+            canGoBack ? el('button', { class: 'link-btn', type: 'button', onClick: showWelcome }, 'Back to the names') : null);
+        setTimeout(() => input.focus(), 50);
+        app.replaceChildren(el('div', { class: 'screen welcome' }, logo(), form));
     }
 
     function begin() {
@@ -153,7 +181,7 @@
             settingsButtons());
 
         app.replaceChildren(el('div', { class: 'screen menu' }, header,
-            el('div', { class: 'scroll' }, el('h1', { class: 'screen-heading' }, 'Pick a pack'), sections)));
+            el('div', { class: 'scroll' }, el('h1', { class: 'screen-heading' }, 'Pick a pack'), el('div', { class: 'pack-groups' }, sections))));
         LS.speech.say(greeting || 'Pick a pack to play!');
     }
 
@@ -182,6 +210,7 @@
 
         let stars = 0;
         let finished = false;
+        let active = true; // false once the player leaves, so nothing late can speak or schedule
         let lastPrompt = '';
         const timers = new Set();
         const frameFns = new Set();
@@ -214,9 +243,17 @@
 
         const api = {
             name: state.name,
-            say: (text) => LS.speech.say(text),
+            say: (text) => (active ? LS.speech.say(text) : Promise.resolve()),
             // The instruction shown at the top, spoken aloud. The speaker button repeats it.
-            prompt(text) { lastPrompt = text; promptText.textContent = text; return LS.speech.say(text); },
+            // Pass `spoken` when the speech should differ from the text, e.g. a letter's sound ("ser") vs the letter ("s").
+            prompt(text, spoken = text) {
+                if (!active) return Promise.resolve();
+                lastPrompt = spoken;
+                promptText.textContent = text;
+                return LS.speech.say(spoken);
+            },
+            // Resolves after ms. Never resolves if the player leaves first, so `await api.wait()` chains just stop.
+            wait: (ms) => new Promise((resolve) => api.later(resolve, ms)),
             // Award a star. Returns true when that was the last star (the game should then stop).
             correct(message) {
                 if (finished) return true;
@@ -232,7 +269,8 @@
                 }
                 return false;
             },
-            tryAgain(message) { LS.sound.oops(); LS.speech.say(message || 'Oops! Have another go.'); },
+            // Returns a promise that resolves when the message has been spoken.
+            tryAgain(message) { LS.sound.oops(); return api.say(message || 'Oops! Have another go.'); },
             // For games without stars (like painting): end the game now.
             finish(message) {
                 if (finished) return;
@@ -240,11 +278,13 @@
                 celebrate(pack, game, Math.max(stars, 1), message);
             },
             later(fn, ms) {
+                if (!active) return null;
                 const id = setTimeout(() => { timers.delete(id); fn(); }, ms);
                 timers.add(id);
                 return id;
             },
             onFrame(fn) {
+                if (!active) return;
                 frameFns.add(fn);
                 if (rafId == null) rafId = requestAnimationFrame(loop);
             },
@@ -253,6 +293,7 @@
         const gameCleanup = game.start(stage, api);
 
         cleanup = () => {
+            active = false;
             timers.forEach(clearTimeout);
             timers.clear();
             frameFns.clear();
