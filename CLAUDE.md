@@ -4,7 +4,7 @@ Guidance for Claude Code (and anyone else) working on this repo.
 
 ## Project
 
-**Little Stars** is a set of simple learning games for the owner's 4-year-old, inspired by the Amiga 500's *Fun School 3: For Under 5s*. It runs locally on Windows; it isn't hosted anywhere. The repo is public on GitHub (`marbam/little-stars`).
+**Little Stars** is a set of simple learning games for the owner's 4-year-old, inspired by the Amiga 500's *Fun School 3: For Under 5s*. It's mainly played locally on Windows. The repo is public on GitHub (`marbam/little-stars`), and GitHub Pages serves `main` at https://marbam.github.io/little-stars/, so every push to `main` goes live within a couple of minutes. File paths must match case exactly, because Pages is case-sensitive and Windows isn't.
 
 The current audience is **under 5s who can't read yet**, played on a **Windows PC with a mouse** (no touchscreen). Games are grouped into packs by age.
 

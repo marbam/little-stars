@@ -2,9 +2,11 @@
 
 A collection of simple, friendly learning games for young children, inspired by the Amiga's *Fun School 3: For Under 5s*. Everything is spoken aloud, so the player doesn't need to read yet. There's no way to fail: wrong answers get a gentle "have another go", and right answers get stars, cheers and confetti.
 
+**▶ Play it online: https://marbam.github.io/little-stars/**
+
 ## Running it
 
-Double-click `index.html`. It opens in your browser, works offline and needs nothing installed.
+Open the link above, or download the repo (green **Code** button → **Download ZIP**), extract it, and double-click `index.html`. It opens in your browser, works offline and needs nothing installed.
 
 - **Microsoft Edge is recommended.** Its built-in "Natural" voices (e.g. *Libby*, *Sonia*) sound far nicer than the older robotic ones. Chrome works too.
 - Press the 🖥️ button (or F11) for full screen, which stops little hands clicking on browser tabs.
