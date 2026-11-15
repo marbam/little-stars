@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+    <meta charset="utf-8">
+    <title>Phonics sound check</title>
+    <style>
+        body { font-family: sans-serif; margin: 2rem; background: #fdf6ff; color: #222; }
+        p { max-width: 40rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); gap: 0.75rem; }
+        .row { display: flex; gap: 0.4rem; align-items: center; background: #fff; padding: 0.5rem; border-radius: 0.5rem; }
+        .row b { font-size: 2rem; width: 2rem; text-align: center; }
+        .row input { width: 4.5rem; font-size: 1rem; }
+        .row button { font-size: 1.2rem; cursor: pointer; }
+        input.changed { background: #fff3b0; }
+        pre { background: #fff; padding: 1rem; border-radius: 0.5rem; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>Phonics sound check</h1>
+    <p>Click 🔊 to hear how the computer voice says each sound in the First letters game. If one sounds wrong,
+       try a different spelling in the box. When you're happy, copy the code at the bottom into the
+       <code>SOUNDS</code> table in <code>js/packs/starter/letters.js</code>. Open this page in Edge to hear the same voice as the game.</p>
+    <div class="grid" id="grid"></div>
+    <h2>Code for letters.js</h2>
+    <pre id="code"></pre>
+
+    <script src="../js/core/ui.js"></script>
+    <script src="../js/core/speech.js"></script>
+    <script src="../js/core/registry.js"></script>
+    <script src="../js/packs/starter/letters.js"></script>
+    <script>
+        const original = LS.letterSounds;
+        const current = { ...original };
+        const grid = document.getElementById('grid');
+        const code = document.getElementById('code');
+
+        function showCode() {
+            const entries = Object.keys(current).map((l) => `${l}: '${current[l].replace(/'/g, "\\'")}'`);
+            const lines = [];
+            for (let i = 0; i < entries.length; i += 10) lines.push('        ' + entries.slice(i, i + 10).join(', ') + ',');
+            code.textContent = '    const SOUNDS = {\n' + lines.join('\n') + '\n    };';
+        }
+
+        for (const letter of Object.keys(original)) {
+            const input = document.createElement('input');
+            input.value = original[letter];
+            input.addEventListener('input', () => {
+                current[letter] = input.value;
+                input.classList.toggle('changed', input.value !== original[letter]);
+                showCode();
+            });
+            const play = document.createElement('button');
+            play.textContent = '🔊';
+            play.title = 'Hear the sound';
+            play.addEventListener('click', () => LS.speech.say(current[letter]));
+            const label = document.createElement('b');
+            label.textContent = letter;
+            const row = document.createElement('div');
+            row.className = 'row';
+            row.append(label, input, play);
+            grid.append(row);
+        }
+        showCode();
+    </script>
+</body>
+</html>

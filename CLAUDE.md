@@ -32,7 +32,7 @@ Plain HTML, CSS and JavaScript, with no framework, bundler or ES modules. Script
 - **Gentle difficulty ramp within a game.** For example, counting goes from up to 4 to up to 10, letters hide the word after round 3, and shapes add colour from round 4.
 - **Timers:** games must use `api.later()` and `api.onFrame()`, not raw `setTimeout`/`requestAnimationFrame`, so everything stops when the player leaves mid-game.
 - **Emoji:** the target machine is Windows 10. Avoid newer emoji (Emoji 13+, e.g. 🪼 🫙 🪁) because they won't render.
-- **Letter names** are spelled phonetically for the speech engine (`'ay'`, `'bee'`, `'aitch'`, `'zed'`), because TTS reads a bare "a" as the article. UK English throughout (colour, ladybird, zed).
+- **Letters are spoken by their phonic sound**, not their name (`'buh'`, `'ser'`, `'ler'`), as UK schools teach. The spellings in `SOUNDS` in `letters.js` were checked against Windows' Hazel voice; it spells out any string with no vowel, so a held "sss" isn't possible. To check a spelling without listening, use PowerShell's `System.Speech` `SpeechSynthesizer` with its `PhonemeReached` event to see the phonemes. Tune by ear with `tests/phonics.html`. Starting words must begin with the letter's short sound (so no "ice cream"), and c and k are never offered together because they sound the same. UK English throughout (colour, ladybird, zed).
 - **Persistence** is `localStorage` only (`ls.name`, `ls.sound`, `ls.stars.<name>`), wrapped in try/catch so it can never break the game.
 - Large, mouse-friendly targets; balloons move slowly on purpose.
 

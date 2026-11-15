@@ -15,7 +15,7 @@ Double-click `index.html`. It opens in your browser, works offline and needs not
 | Game | What it teaches |
 | --- | --- |
 | 🍎 Count with me | Counting 1–10. Clicking each object counts it out loud. |
-| 🔤 First letters | Letter recognition and initial letters. The word is shown at first and hidden in later rounds. |
+| 🔤 First letters | Letter sounds (phonics): which sound does the word start with? Letters are spoken by their sound ("buh", "mmm"), not their name. The word is shown at first and hidden in later rounds. |
 | 🎈 Pop the balloons | Colours and mouse control. Pop three balloons of the colour asked for. |
 | 🔺 Find the shape | Shapes, then shape + colour together ("the red triangle"). |
 | 🃏 Find the pairs | Memory, with animals that say their names. |
