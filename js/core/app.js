@@ -243,6 +243,7 @@
 
         const api = {
             name: state.name,
+            players: players(), // everyone who has played here, including this player
             say: (text) => (active ? LS.speech.say(text) : Promise.resolve()),
             // The instruction shown at the top, spoken aloud. The speaker button repeats it.
             // Pass `spoken` when the speech should differ from the text, e.g. a letter's sound ("ser") vs the letter ("s").

@@ -115,6 +115,8 @@ button:active:not(:disabled) { transform: translateY(4px); }
 
 .pack-groups { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px 60px; }
 .pack-group { min-width: 260px; }
+.pack-group .tile-grid { display: flex; flex-wrap: wrap; justify-content: center; }
+.pack-group .tile { width: 250px; }
 .pack-group h2 { font-size: 30px; margin: 0 0 14px; opacity: 0.7; }
 
 .tile-grid {
@@ -480,6 +482,87 @@ button:active:not(:disabled) { transform: translateY(4px); }
 }
 .pattern-item:not(.gap):last-child { animation: pop-in 0.4s; background: #d8f8e1; }
 .blob { display: block; width: 66%; height: 66%; border-radius: 50%; background: var(--c); box-shadow: inset -6px -8px 0 rgba(0, 0, 0, 0.15); }
+
+/* ---------- Clever Clogs pack ---------- */
+.choice.big-number { min-width: 170px; height: 170px; font-size: 110px; }
+
+/* Dotty dice */
+.dice-table { display: flex; gap: 30px; perspective: 900px; }
+.dice {
+    display: grid;
+    grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+    gap: 8px;
+    width: clamp(150px, 24vh, 200px);
+    height: clamp(150px, 24vh, 200px);
+    padding: 20px;
+    border-radius: 30px;
+    background: #fff;
+    box-shadow: 0 10px 0 rgba(0, 0, 0, 0.15), inset 0 -6px 0 rgba(0, 0, 0, 0.06);
+    transition: transform 0.4s;
+}
+.dice-spot.dot { border-radius: 50%; background: var(--ink); }
+.hidden-dice .dice { transform: rotateY(180deg); background: var(--accent); }
+.hidden-dice .dice-spot { visibility: hidden; }
+
+/* Share it out */
+.share-table { display: flex; gap: clamp(20px, 4vw, 60px); justify-content: center; align-items: flex-end; }
+.share-friend { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.friend.small { font-size: clamp(70px, 11vh, 100px); }
+.share-name { font-size: 24px; font-weight: 700; }
+.share-plate {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: center;
+    gap: 2px 6px;
+    width: clamp(170px, 20vw, 240px);
+    min-height: 90px;
+    padding: 12px 24px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, #fff 0 60%, #f1ebdc 61% 100%);
+    box-shadow: 0 8px 0 rgba(0, 0, 0, 0.1);
+}
+.share-item { font-size: 36px; line-height: 1.15; }
+.arrive-small { animation: pop-in 0.35s; }
+.share-pile { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; min-height: 80px; }
+.share-sweet { background: none; font-size: clamp(54px, 8vh, 72px); line-height: 1; padding: 4px; }
+.share-sweet:hover:not(:disabled) { transform: scale(1.15) rotate(-8deg); }
+.share-pile.left-over .share-sweet { animation: bounce 0.8s 2; filter: drop-shadow(0 0 10px #ffd60a); cursor: default; }
+
+/* Word builder and My name */
+.sound-slot.filled { color: var(--ink); }
+.gap-slot { border: 5px dashed var(--accent); background: transparent !important; box-shadow: none !important; color: var(--accent) !important; animation: bob 1.6s ease-in-out infinite; }
+.name-word { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.name-letter {
+    min-width: clamp(70px, 9vh, 96px);
+    height: clamp(90px, 13vh, 120px);
+    padding: 0 10px;
+    border-radius: 22px;
+    background: var(--card);
+    box-shadow: 0 6px 0 rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(56px, 9vh, 84px);
+    font-weight: 700;
+}
+.name-letter.empty { background: #f1ebdc; box-shadow: inset 0 4px 0 rgba(0, 0, 0, 0.08); }
+.name-letter.lit { background: var(--accent); color: #fff; animation: pop-in 0.3s; }
+.name-choice {
+    min-width: 240px;
+    padding: 24px 36px;
+    border-radius: 32px;
+    background: var(--card);
+    font-size: clamp(48px, 7vw, 72px);
+    font-weight: 700;
+    box-shadow: 0 8px 0 rgba(0, 0, 0, 0.15);
+}
+.name-choice:hover:not(:disabled) { transform: translateY(-3px) scale(1.05); }
+.tile-letter.used { opacity: 0.15; cursor: default; }
+
+/* Odd one out */
+.odd-shape { width: 72%; height: 72%; }
+.odd-count { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 6px; font-size: clamp(40px, 5vw, 56px); line-height: 1.15; max-width: 85%; }
 
 /* ---------- Celebration ---------- */
 #overlay {

@@ -34,6 +34,17 @@ The games are designed for a child who points while a grown-up clicks: answers a
 | ➕ One more, one less | Early adding and taking away with fruit on a plate. Tap the fruit to count it. |
 | 🔁 What comes next? | Patterns: AB, AAB, ABB, ABC with fruit, animals, vehicles and colours. |
 
+## Clever Clogs Pack (Ages 4–5)
+
+| Game | What it teaches |
+| --- | --- |
+| 🔢 Find the number | Reading numbers: "point to number 7". Goes up to 10, then uses lookalikes (6 / 9, 1 / 7). |
+| 🎲 Dotty dice | Seeing how many without counting. The dice turns over after a moment; "Look again" shows it again. Ends with two dice. |
+| 🍬 Share it out | Sharing fairly: give out sweets one each in turn, then say how many each friend has. Ends with one left over. |
+| 🔤 Word builder | Which sound is missing from c _ t? The end sound first, then the middle sound. |
+| 📛 My name | Reading your own name: find it, fill in a missing letter, then build it from jumbled letters. |
+| 🧐 Odd one out | Sorting: which doesn't belong? By kind of thing, then colour, shape and how many. |
+
 ## How it's built
 
 Plain HTML, CSS and JavaScript with no build step and no frameworks. See `CLAUDE.md` for design decisions and conventions.
@@ -49,7 +60,8 @@ js/core/speech.js       text-to-speech (browser speechSynthesis)
 js/core/registry.js     LS.registerGame / LS.registerPack
 js/core/app.js          screens: name -> packs -> games -> game -> celebration
 js/packs/starter/*.js   one file per game, plus pack.js
-js/packs/bigsteps/*.js  the Ages 4–5 pack (common.js has shared helpers)
+js/packs/bigsteps/*.js  Ages 4–5 pack (common.js has helpers the next pack reuses too)
+js/packs/cleverclogs/*.js  the second Ages 4–5 pack
 tests/phonics.html      listen to and tune the phonic sounds
 ```
 

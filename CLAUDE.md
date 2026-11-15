@@ -13,7 +13,7 @@ The current audience is **under 5s who can't read yet**, played on a **Windows P
 ## Running and testing
 
 - **Play:** double-click `index.html`. No server, build step or install. Edge is recommended for its "Natural" text-to-speech voices.
-- **Test:** `npm install` once, then `npm test`. This runs `tests/smoke.js`, which uses puppeteer-core with the installed Chrome (`C:/Program Files/Google/Chrome/...`). It enters a name, plays every game in both packs through to the celebration screen, checks the player picker and that the star total persists across a reload, and saves screenshots to `tests/shots/` (gitignored). Look at the screenshots after UI changes. The test can't hear audio, so check speech by ear.
+- **Test:** `npm install` once, then `npm test`. This runs `tests/smoke.js`, which uses puppeteer-core with the installed Chrome (`C:/Program Files/Google/Chrome/...`). It enters a name, plays every game in every pack through to the celebration screen, checks the player picker and that the star total persists across a reload, and saves screenshots to `tests/shots/` (gitignored). Look at the screenshots after UI changes. The test can't hear audio, so check speech by ear.
 - `package.json` exists only for this test tooling. The game itself must keep working with no npm install.
 
 ## Architecture
@@ -24,10 +24,11 @@ Plain HTML, CSS and JavaScript, with no framework, bundler or ES modules. Script
 - `js/core/sound.js`: sound effects generated with Web Audio (no audio files).
 - `js/core/speech.js`: `speechSynthesis`, preferring an en-GB voice.
 - `js/core/registry.js`: `LS.registerGame()` and `LS.registerPack()`. The README has the game contract.
-- `js/core/app.js`: the screens (player picker / name → packs, grouped by `ages` → games → game → celebration overlay). It also provides the `api` object handed to each game: `prompt` (with an optional different spoken text), `say`, `correct`, `tryAgain`, `finish`, `later`, `wait`, `onFrame`. After the player leaves a game, `later`/`wait`/`say`/`prompt` do nothing, so `await api.wait()` chains just stop.
+- `js/core/app.js`: the screens (player picker / name → packs, grouped by `ages` → games → game → celebration overlay). It also provides the `api` object handed to each game: `name`, `players`, `prompt` (with an optional different spoken text), `say`, `correct`, `tryAgain`, `finish`, `later`, `wait`, `onFrame`. After the player leaves a game, `later`/`wait`/`say`/`prompt` do nothing, so `await api.wait()` chains just stop.
 - `js/packs/<pack>/`: one file per game, plus `pack.js`. New pack scripts go in `index.html` before `app.js`.
   - `starter/` (Under 5s): counting, letters, balloons, shapes, pairs, paint.
-  - `bigsteps/` (Ages 4–5): I spy, sound it out, rhyme time, more or less, one more one less, what comes next. `common.js` has `LS.bigsteps.choiceRow()` (big answer buttons; the right one carries `data-right`, which the smoke test uses) and the shared `THINGS` to count.
+  - `bigsteps/` (Ages 4–5): I spy, sound it out, rhyme time, more or less, one more one less, what comes next. `common.js` has `LS.bigsteps.choiceRow()` (big answer buttons; the right one carries `data-right`, which the smoke test uses) and the shared `THINGS` to count and `FRIENDS`.
+  - `cleverclogs/` (Ages 4–5): find the number, dotty dice, share it out, word builder, my name, odd one out. Reuses the Big Steps helpers, so its scripts load after that pack. My name uses `api.name` and `api.players`.
 
 ## Conventions and decisions
 
@@ -42,7 +43,6 @@ Plain HTML, CSS and JavaScript, with no framework, bundler or ES modules. Script
 
 ## Ideas discussed for later
 
-- A follow-up pack: Find the Number (numeral recognition), Dotty Dice (subitising), Share It Out (sharing between teddies), Word Builder (c_t).
 - A pack for older children (adding up, spelling, telling the time).
 - Recording the owner's own voice instead of using the computer voice.
 - A sticker or reward screen to spend stars on.

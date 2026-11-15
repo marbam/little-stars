@@ -177,46 +177,76 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
     report.jar = await page.evaluate(() => document.querySelector('.jar').textContent);
     await page.screenshot({ path: out('71-packs-two') });
 
-    // Big Steps pack. Each game marks its right answer with data-right; pick a wrong one first, then the right one.
-    await (await page.$$('.tile'))[1].click();
-    await sleep(500);
-    await page.screenshot({ path: out('90-bigsteps-games') });
-    const bigSteps = ['ispy', 'soundout', 'rhyme', 'moreless', 'onemore', 'pattern'];
-    for (let g = 0; g < bigSteps.length; g++) {
-        await openGame(g);
-        for (let r = 0; r < 5; r++) {
-            await page.waitForFunction(() => document.querySelector('[data-right]:not(.right)'), { timeout: 30000 });
-            if (r === 0 || r === 3) await page.screenshot({ path: out(`9${g + 1}-${bigSteps[g]}-round${r + 1}`) });
-            await page.evaluate(() => {
-                const right = document.querySelector('[data-right]:not(.right)');
-                const wrong = [...right.parentElement.children].find((b) => b !== right && !b.disabled);
-                if (wrong) wrong.click();
-                right.click();
-            });
-            await sleep(400);
-            if (r === 4) await page.screenshot({ path: out(`9${g + 1}-${bigSteps[g]}-right`) });
+    // The Ages 4–5 packs. Each game marks its right answer with data-right; pick a wrong one first, then the right one.
+    // Share it out needs its sweets dealing first, and the last round of My name is built letter by letter.
+    const ready = () => document.querySelector('[data-right]:not(.right), .share-sweet:not(:disabled), .tile-letter:not(.used)');
+
+    async function playRound() {
+        await page.waitForFunction(ready, { timeout: 30000 });
+        await page.evaluate(() => {
+            const sweets = [...document.querySelectorAll('.share-sweet:not(:disabled)')];
+            if (sweets.length && !document.querySelector('[data-right]:not(.right)')) sweets.forEach((x) => x.click());
+        });
+        if ((await page.$$('.tile-letter:not(.used)')).length) {
+            await page.evaluate((name) => {
+                const tiles = [...document.querySelectorAll('.tile-letter')];
+                tiles.find((t) => t.dataset.letter !== name[0]).click(); // a wrong one first
+                for (const ch of name) tiles.find((t) => t.dataset.letter === ch && !t.disabled).click();
+            }, 'Sam');
+            return;
         }
-        await page.waitForFunction(() => !document.getElementById('overlay').hidden, { timeout: 15000 }).catch(() => {});
-        report[bigSteps[g]] = await overlayShown();
-        await backToGames();
+        await page.waitForFunction(() => document.querySelector('[data-right]:not(.right)'), { timeout: 30000 });
+        await page.evaluate(() => {
+            const right = document.querySelector('[data-right]:not(.right)');
+            const wrong = [...right.parentElement.children].find((b) => b !== right && !b.disabled);
+            if (wrong) wrong.click();
+            right.click();
+        });
     }
-    report.jarAfterBigSteps = await page.evaluate(() => document.querySelector('.jar').textContent);
-    await page.click('.topbar .nav-btn'); // back to the packs
-    await sleep(400);
+
+    async function playPack(tileIndex, prefix, games) {
+        await (await page.$$('.tile'))[tileIndex].click();
+        await sleep(500);
+        await page.screenshot({ path: out(prefix + '0-menu') });
+        for (let g = 0; g < games.length; g++) {
+            await openGame(g);
+            for (let r = 0; r < 5; r++) {
+                await page.waitForFunction(ready, { timeout: 30000 });
+                if (r === 0 || r === 3 || r === 4) await page.screenshot({ path: out(prefix + (g + 1) + '-' + games[g] + '-round' + (r + 1)) });
+                await playRound();
+                await sleep(400);
+                if (r === 4) await page.screenshot({ path: out(prefix + (g + 1) + '-' + games[g] + '-right') });
+            }
+            await page.waitForFunction(() => !document.getElementById('overlay').hidden, { timeout: 15000 }).catch(() => {});
+            report[games[g]] = await overlayShown();
+            await backToGames();
+        }
+        await page.click('.topbar .nav-btn'); // back to the packs
+        await sleep(400);
+    }
+
+    const bigSteps = ['ispy', 'soundout', 'rhyme', 'moreless', 'onemore', 'pattern'];
+    const cleverClogs = ['findnumber', 'dice', 'share', 'wordbuilder', 'myname', 'oddoneout'];
+    await playPack(1, '9', bigSteps);
+    await playPack(2, 'c', cleverClogs);
+    report.jarAfterAllPacks = await page.evaluate(() => document.querySelector('.jar').textContent);
 
     // Smaller screen check
     await page.setViewport({ width: 1024, height: 600 });
-    await (await page.$$('.tile'))[1].click();
-    await sleep(300);
-    for (const g of [1, 3, 4, 5]) {
-        await openGame(g);
-        await page.waitForFunction(() => document.querySelector('[data-right]'), { timeout: 30000 });
-        await page.screenshot({ path: out(`82-small-${bigSteps[g]}`) });
+    await page.screenshot({ path: out('83-small-packs') });
+    for (const [tileIndex, games, picks] of [[1, bigSteps, [1, 3, 4, 5]], [2, cleverClogs, [1, 2, 4, 5]]]) {
+        await (await page.$$('.tile'))[tileIndex].click();
+        await sleep(300);
+        for (const g of picks) {
+            await openGame(g);
+            await page.waitForFunction(() => document.querySelector('[data-right], .share-sweet'), { timeout: 30000 });
+            await page.screenshot({ path: out('82-small-' + games[g]) });
+            await page.click('.topbar .nav-btn');
+            await sleep(400);
+        }
         await page.click('.topbar .nav-btn');
         await sleep(400);
     }
-    await page.click('.topbar .nav-btn');
-    await sleep(400);
     await page.click('.tile');
     await sleep(300);
     await page.screenshot({ path: out('80-small-games') });

@@ -53,5 +53,8 @@ LS.bigsteps = (function () {
 
     const plural = (thing, n) => (n === 1 ? thing.one : thing.many);
 
-    return { choiceRow, THINGS, plural };
+    // Friends who own or share things in the maths games.
+    const FRIENDS = [{ e: '🐻', name: 'Teddy' }, { e: '🐰', name: 'Bunny' }, { e: '🐵', name: 'Monkey' }, { e: '🐶', name: 'Puppy' }];
+
+    return { choiceRow, THINGS, plural, FRIENDS };
 })();

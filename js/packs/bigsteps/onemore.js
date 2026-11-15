@@ -2,9 +2,7 @@
 // (or one rolls away), and she says how many there are now. Tapping the fruit counts it out loud.
 (function () {
     const { el, pick, randInt, NUMBER_WORDS } = LS.ui;
-    const { THINGS, plural, choiceRow } = LS.bigsteps;
-
-    const FRIENDS = [{ e: '🐻', name: 'Teddy' }, { e: '🐰', name: 'Bunny' }, { e: '🐵', name: 'Monkey' }, { e: '🐶', name: 'Puppy' }];
+    const { THINGS, plural, choiceRow, FRIENDS } = LS.bigsteps;
 
     // Each round: [add or take, how many change, largest number she starts with]
     const ROUNDS = [['add', 1, 3], ['add', 1, 4], ['take', 1, 5], ['add', 2, 5], ['either', 1, 7]];
